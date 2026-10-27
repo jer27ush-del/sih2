@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+body {
+  @apply bg-slate-50 text-slate-900 antialiased;
+}
+
+/* Clear keyboard focus everywhere, so people can see where they are */
+:focus-visible {
+  outline: 3px solid #1d4ed8;
+  outline-offset: 3px;
+}
+
+/* Larger text. Also respects the browser's own text size */
+html.text-large {
+  font-size: 125%;
+}
+html.text-large button,
+html.text-large input,
+html.text-large select,
+html.text-large textarea {
+  min-height: 44px;
+}
+
+/* High contrast: black on white, stronger borders and links */
+html.high-contrast body {
+  background: #ffffff;
+  color: #000000;
+}
+html.high-contrast * {
+  border-color: #000000 !important;
+}
+html.high-contrast a {
+  color: #0000ee;
+  text-decoration: underline;
+}
+
+/* Less motion for people who are sensitive to it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Skip link: appears only when a keyboard user tabs to it */
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  z-index: 50;
+  background: #1e3a8a;
+  color: #ffffff;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+}
+.skip-link:focus {
+  top: 1rem;
+}

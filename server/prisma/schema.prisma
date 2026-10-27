@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Roles (User.role): INSTITUTION | OFFICER | ADMIN
+// Complaint.status:  SUBMITTED | PENDING | IN_PROGRESS | TRANSFERRED | RESOLVED
+// Complaint.priority: HIGH | MEDIUM | LOW
+// Complaint.dnaLabel: NEW_ISSUE | DUPLICATE | RELATED
+// Action.type: SUBMITTED | ASSIGNED | TRANSFERRED | INFO_REQUESTED | ACKNOWLEDGED | NOTE | RESOLVED
+
+model Bureau {
+  id          String      @id @default(cuid())
+  code        String      @unique
+  name        String
+  users       User[]
+  complaints  Complaint[]
+  actions     Action[]
+}
+
+model Institution {
+  id         String      @id @default(cuid())
+  aicteId    String      @unique
+  name       String
+  region     String
+  address    String
+  users      User[]
+  complaints Complaint[]
+  createdAt  DateTime    @default(now())
+}
+
+model User {
+  id           String       @id @default(cuid())
+  email        String       @unique
+  passwordHash String
+  name         String
+  role         String
+  institutionId String?
+  institution  Institution? @relation(fields: [institutionId], references: [id])
+  bureauId     String?
+  bureau       Bureau?      @relation(fields: [bureauId], references: [id])
+  createdAt    DateTime     @default(now())
+}
+
+model Complaint {
+  id           String   @id @default(cuid())
+  caseId       String   @unique
+  institutionId String
+  institution  Institution @relation(fields: [institutionId], references: [id])
+  category     String
+  description  String
+  priority     String   @default("MEDIUM")
+  status       String   @default("SUBMITTED")
+  dnaLabel     String   @default("NEW_ISSUE")
+  leadBureauId String?
+  leadBureau   Bureau?  @relation(fields: [leadBureauId], references: [id])
+  receivedAt   DateTime @default(now())
+  dueDate      DateTime
+  lastActionAt DateTime @default(now())
+  createdAt    DateTime @default(now())
+  actions      Action[]
+  attachments  Attachment[]
+  linksFrom    ComplaintLink[] @relation("LinkFrom")
+  linksTo      ComplaintLink[] @relation("LinkTo")
+}
+
+model ComplaintLink {
+  id          String    @id @default(cuid())
+  fromId      String
+  from        Complaint @relation("LinkFrom", fields: [fromId], references: [id], onDelete: Cascade)
+  toId        String
+  to          Complaint @relation("LinkTo", fields: [toId], references: [id], onDelete: Cascade)
+  relation    String    // DUPLICATE | RELATED
+  createdAt   DateTime  @default(now())
+}
+
+model Action {
+  id          String    @id @default(cuid())
+  complaintId String
+  complaint   Complaint @relation(fields: [complaintId], references: [id], onDelete: Cascade)
+  type        String
+  actorName   String
+  bureauId    String?
+  bureau      Bureau?   @relation(fields: [bureauId], references: [id])
+  remarks     String?
+  createdAt   DateTime  @default(now())
+}
+
+model Attachment {
+  id          String    @id @default(cuid())
+  complaintId String
+  complaint   Complaint @relation(fields: [complaintId], references: [id], onDelete: Cascade)
+  fileName    String
+  mimeType    String
+  sizeBytes   Int
+  storagePath String
+  createdAt   DateTime  @default(now())
+}
