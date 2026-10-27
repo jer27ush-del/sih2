@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "node --watch-path=./src src/index.js",
-    "prestart": "prisma migrate deploy",
+    "prestart": "prisma migrate deploy && node prisma/seed.js",
     "start": "node src/index.js",
     "db:migrate": "prisma migrate dev",
     "db:seed": "prisma db seed",
